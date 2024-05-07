@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<form id="calculatorForm">
+    <input type="text" id="expressionInput" placeholder="Enter expression (e.g., 2 + 2)">
+    <input type="text" id="resultDisplay" placeholder="Result" readonly>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $('#expressionInput').on('input', function () {
+            var expression = $(this).val();
+
+
+
+            console.log(expression)
+            expression = expression.trim();
+
+            // Определяем индекс операции
+            const operators = ['+', '-', '*', '/', 'pow', 'sqrt', 'sin', 'cos', 'tan', 'cot'];
+
+            const operand1 = expression.slice(0, operatorIndex).trim();
+            const operator = expression.slice(operatorIndex, operatorIndex + 1);
+            const operand2 = expression.slice(operatorIndex + 1).trim();
+
+            for (const op in operators) {
+
+                if (expression.indexOf(op) !== -1) {
+
+                }
+
+            }
+
+            expression = expression.split()
+            // Извлекаем операнды и операцию
+
+            // Выводим операнды и операцию
+
+            $.ajax({
+                url: 'http://127.0.0.1:5000/calculate',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({operand1: operand1, operand2: operand2, operation: operationSymbol}),
+                success: function (response) {
+                    $('#resultDisplay').val(response.result);
+                },
+                error: function (xhr, status, error) {
+                    $('#resultDisplay').val('Error: ' + xhr.responseJSON.error);
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
