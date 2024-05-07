@@ -1,63 +1,94 @@
+<!--index.html-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculator</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous"></script>
 </head>
 <body>
+    <div class="input_container">
+        <input id="expression" type="text" placeholder="Enter expression (e.g., sin(10))">
+        <input id="result" type="text" placeholder="Result" readonly>
 
-<form id="calculatorForm">
-    <input type="text" id="expressionInput" placeholder="Enter expression (e.g., 2 + 2)">
-    <input type="text" id="resultDisplay" placeholder="Result" readonly>
-</form>
+    </div>
 
-<script>
-    $(document).ready(function () {
-        $('#expressionInput').on('input', function () {
-            var expression = $(this).val();
+    <script>
+        function parseExpression(expression) {
+            const operatorRegex = /[+\-*/^]/; // Regular expression for basic operators
+            const match = expression.match(operatorRegex);
 
-
-
-            console.log(expression)
-            expression = expression.trim();
-
-            // Определяем индекс операции
-            const operators = ['+', '-', '*', '/', 'pow', 'sqrt', 'sin', 'cos', 'tan', 'cot'];
-
-            const operand1 = expression.slice(0, operatorIndex).trim();
-            const operator = expression.slice(operatorIndex, operatorIndex + 1);
-            const operand2 = expression.slice(operatorIndex + 1).trim();
-
-            for (const op in operators) {
-
-                if (expression.indexOf(op) !== -1) {
-
-                }
-
+            if (match) {
+            const operator = match[0]; // The operator
+            const operands = expression.split(operator).map((operand) => operand.trim()); // Split and trim operands
+                return {
+                  operand1: operands[0],
+                  operand2: operands[1],
+                  operator,
+                };
             }
 
-            expression = expression.split()
-            // Извлекаем операнды и операцию
+            return null; // No operator found
+        }
 
-            // Выводим операнды и операцию
+        function parseFunction(expression) {
+            const functionRegex = /^([a-z]+)\(([^)]+)\)/i; // Regular expression for function and argument
+            const match = expression.match(functionRegex);
 
-            $.ajax({
-                url: 'http://127.0.0.1:5000/calculate',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({operand1: operand1, operand2: operand2, operation: operationSymbol}),
-                success: function (response) {
-                    $('#resultDisplay').val(response.result);
-                },
-                error: function (xhr, status, error) {
-                    $('#resultDisplay').val('Error: ' + xhr.responseJSON.error);
-                }
-            });
+            if (match) {
+                const functionName = match[1]; // The function name
+                const argument = match[2]; // The argument inside parentheses
+                return {
+                    operand1: null,
+                    operand2: argument,
+                    operator: functionName
+                };
+            }
+
+            return null; // No function found
+        }
+
+        document.getElementById("expression").addEventListener("input", function() {
+            let expression = this.value;
+            let data = parseExpression(expression)
+
+            if (!data) {
+                data = parseFunction(expression)
+            }
+
+            if (data && data.operand2 !== '') {
+                $.ajax({
+                        url: "http://localhost:8000/calculate",
+                        method: "post",
+                        contentType: "application/json",
+                        data: JSON.stringify(data),
+                        success: function (data) {
+                            document.getElementById("result").value = data.result
+                        }
+                    }
+                )
+            }
+
+
+            console.log(data)
+
         });
-    });
-</script>
-
+    </script>
 </body>
+    <style>
+        .input_container {
+            margin: 0 auto;
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 20px;
+        }
+
+        .input_container input {
+            height: 32px;
+        }
+    </style>
 </html>

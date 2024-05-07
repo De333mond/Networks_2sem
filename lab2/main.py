@@ -1,54 +1,53 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
 import math
 
-app = Flask(__name__)
-CORS(app, origins=['*'])
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
-@app.route('/calculate', methods=['POST'])
-def calculate():
-    data = request.json
-    operand1 = data.get('operand1')
-    operand2 = data.get('operand2')
-    operation = data.get('operation')
+ASDFASDF = 'asdfasdf'
 
-    print(operand1, operand2, operation)
+ASDF = 'asdf'
+app = FastAPI()
 
-    result = None
+origins = [
+    "http://localhost"
+]
 
-    if operation == '+':
-        result = operand1 + operand2
-    elif operation == '-':
-        result = operand1 - operand2
-    elif operation == '*':
-        result = operand1 * operand2
-    elif operation == '/':
-        if operand2 != 0:
-            result = operand1 / operand2
-        else:
-            return jsonify({'error': 'Division by zero'}), 400
-    elif operation == 'power':
-        result = operand1 ** operand2
-    elif operation == 'root':
-        if operand1 >= 0 and operand2 != 0:
-            result = operand1 ** (1 / operand2)
-        else:
-            return jsonify({'error': 'Invalid operands for root operation'}), 400
-    elif operation == 'sin':
-        result = math.sin(operand1)
-    elif operation == 'cos':
-        result = math.cos(operand1)
-    elif operation == 'tan':
-        result = math.tan(operand1)
-    elif operation == 'cot':
-        if math.tan(operand1) != 0:
-            result = 1 / math.tan(operand1)
-        else:
-            return jsonify({'error': 'Cotangent is undefined for the given operand'}), 400
-    else:
-        return jsonify({'error': 'Invalid operation'}), 400
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    return jsonify({'result': result})
 
-if __name__ == '__main__':
-    app.run(debug=True)
+class Expression(BaseModel):
+    operand1: int | None = 0
+    operand2: int
+    operator: str
+
+
+class CalculationResponse(BaseModel):
+    result: float
+
+
+@app.post('/calculate')
+def calculate(exp: Expression) -> CalculationResponse:
+    str_to_func = {
+        '+': lambda x, y: x + y,
+        '-': lambda x, y: x - y,
+        '*': lambda x, y: x * y,
+        '/': lambda x, y: x / y,
+        'sin': lambda x, y: math.sin(y),
+        'cos': lambda x, y: math.cos(y),
+        'tan': lambda x, y: math.tan(y),
+        'cot': lambda x, y: 1 / math.tan(y),
+        '^': lambda x, y: x ** y,
+        'sqrt': lambda x, y: math.sqrt(y),
+    }
+
+    if not exp.operand1:
+        exp.operand1 = 0
+
+    return CalculationResponse(result=str_to_func[exp.operator](exp.operand1, exp.operand2))
