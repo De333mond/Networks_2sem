@@ -1,0 +1,56 @@
+[
+    {
+        "label": "os",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "socket",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "socket",
+        "description": "socket",
+        "detail": "socket",
+        "documentation": {}
+    },
+    {
+        "label": "request_file",
+        "kind": 2,
+        "importPath": "client",
+        "description": "client",
+        "peekOfCode": "def request_file(filename: str):\n    s = socket.socket()\n    s.connect((\"localhost\", 9090))\n    s.send(b'request,' + filename.encode())\n    accepted = s.recv(128)\n    with open('client_files/' + filename, \"wb\") as file:\n        while response := s.recv(1024):\n            file.write(response)\n    print(\"file accepted\")\n    s.close()",
+        "detail": "client",
+        "documentation": {}
+    },
+    {
+        "label": "send_file",
+        "kind": 2,
+        "importPath": "client",
+        "description": "client",
+        "peekOfCode": "def send_file(filename: str):\n    s = socket.socket()\n    s.connect((\"localhost\", 9090))\n    s.send(b\"send,\" + filename.encode())\n    accepted = s.recv(1024)\n    with open(filename, 'rb') as file:\n        while data := file.read(1024):\n            s.sendall(data)\n    print(f'File {filename} sent successfully')\n    s.close()",
+        "detail": "client",
+        "documentation": {}
+    },
+    {
+        "label": "receive_file",
+        "kind": 2,
+        "importPath": "server",
+        "description": "server",
+        "peekOfCode": "def receive_file(connection: socket, filename: str):\n    print(\"receive file\")\n    print(f'{filename=}')\n    with open(\"server_files/\" + filename, \"wb\") as file:\n        iteration = 0\n        while response := connection.recv(1024):\n            iteration += 1\n            print(f'{iteration=} of file receiving')\n            file.write(response)\n    print(\"File saved\")",
+        "detail": "server",
+        "documentation": {}
+    },
+    {
+        "label": "send_file",
+        "kind": 2,
+        "importPath": "server",
+        "description": "server",
+        "peekOfCode": "def send_file(connection, filename: str):\n    print(\"send file\")\n    print(f\"{filename=}\")\n    with open(\"server_files/\" + filename, 'rb') as file:\n        while data := file.read(1024):\n            connection.sendall(data)\n    print(f'File {filename} sent successfully')\nif __name__ == \"__main__\":\n    socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n    socket.bind((\"\", 9090))",
+        "detail": "server",
+        "documentation": {}
+    }
+]

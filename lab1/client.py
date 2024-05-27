@@ -38,6 +38,7 @@ if __name__ == "__main__":
             is_running = False
 
         filename = input('Enter filename: ')
+        print(filename)
         if not os.path.exists(filename):
             print('This file is not exists!')
             continue

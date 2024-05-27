@@ -1,8 +1,8 @@
 import socket
 import os
 
-if not os.path.isdir("sever_files"):
-    os.makedirs('sever_files')
+if not os.path.isdir("server_files"):
+    os.makedirs('server_files')
 
 
 def receive_file(connection: socket, filename: str):
@@ -19,7 +19,7 @@ def receive_file(connection: socket, filename: str):
     print("File saved")
 
 
-def send_file(connection, filename: str):
+def send_file(connection: socket, filename: str):
     print("send file")
     print(f"{filename=}")
 
